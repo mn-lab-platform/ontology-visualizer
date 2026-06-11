@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Ontology Viewer Service</title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="stylesheet" href="/styles/usage.css">
+    <link rel="stylesheet" href="/styles/periodic.css">
+</head>
+<body>
+    <main class="app">
+        <header class="app__header">
+            <h1>Ontology Viewer Service</h1>
+
+            <nav class="app__tabs">
+                <button class="app__tab app__tab--active" data-view="usage">Ontology Usage</button>
+                <button class="app__tab" data-view="cidoc">CIDOC Periodic Table</button>
+            </nav>
+        </header>
+
+        <section id="usage-view" class="app__view">
+            <div class="toolbar">
+                <label>
+                    Resource model
+                    <select id="model-select">
+                        <option value="">Loading models...</option>
+                    </select>
+                </label>
+
+                <button id="load-graph">Load graph</button>
+            </div>
+
+            <div class="summary" id="graph-summary">Choose a model.</div>
+
+            <div class="usage-actions">
+                <button id="fit-graph">Fit</button>
+                <button id="run-layout">Layout</button>
+                <button id="save-layout">Save view</button>
+                <button id="reset-layout">Reset saved view</button>
+                <span id="layout-status" class="layout-status"></span>
+            </div>
+
+            <div class="ontology-legend">
+                <span class="legend-item legend-item--cidoc">CIDOC CRM</span>
+                <span class="legend-item legend-item--archaeo">CRMarchaeo</span>
+                <span class="legend-item legend-item--dig">CRMdig</span>
+                <span class="legend-item legend-item--sci">CRMsci</span>
+                <span class="legend-item legend-item--geo">CRMgeo</span>
+                <span class="legend-item legend-item--literal">Literal</span>
+            </div>
+
+            <div class="usage-diagram-shell">
+                <div id="usage-diagram" class="usage-diagram"></div>
+                <div id="usage-resize-handle" class="usage-resize-handle"></div>
+
+                <div class="usage-help" tabindex="0" aria-label="Graph editing help">
+                    i
+                    <div class="usage-help__tooltip">
+                        Right-click on edge to see options
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="cidoc-view" class="app__view app__view--hidden">
+            <div class="periodic-toolbar">
+                <span>Based on RemoGrillo CIDOC-crm Periodic Table, MIT License</span>
+            </div>
+            <iframe
+                id="cidoc-frame"
+                class="periodic-frame"
+                src="/cidoc-periodic-table/index.html"
+                title="CIDOC CRM Periodic Table"
+            ></iframe>
+        </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>

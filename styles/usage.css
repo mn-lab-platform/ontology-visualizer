@@ -1,0 +1,102 @@
+.usage-diagram {
+    width: 100%;
+    height: calc(100vh - 190px);
+    min-height: 560px;
+    background: #fff;
+    border: 1px solid #d8e0e8;
+}
+.usage-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.layout-status {
+    color: #52606d;
+    font-size: 13px;
+}
+
+.ontology-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.legend-item {
+    border: 1px solid #b8c4d2;
+    padding: 5px 8px;
+    font-size: 12px;
+    background: #fff;
+}
+
+.legend-item--cidoc { background: #ffe8a6; }
+.legend-item--archaeo { background: #f6c7a6; }
+.legend-item--dig { background: #c9dfb8; }
+.legend-item--sci { background: #b8dce8; }
+.legend-item--geo { background: #d4c3e6; }
+.legend-item--literal { background: #e3e5e8; }
+
+.usage-diagram-shell {
+    position: relative;
+}
+
+.usage-diagram {
+    width: 100%;
+    height: calc(100vh - 250px);
+    min-height: 560px;
+    background: #fff;
+    border: 1px solid #d8e0e8;
+}
+
+.usage-resize-handle {
+    position: absolute;
+    display: none;
+    width: 14px;
+    height: 14px;
+    background: #1f5f9f;
+    border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+    cursor: nwse-resize;
+    z-index: 10;
+}
+.usage-help {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border: 1px solid #9aa6b2;
+    border-radius: 50%;
+    background: #fff;
+    color: #52606d;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: help;
+    z-index: 9;
+}
+
+.usage-help__tooltip {
+    position: absolute;
+    left: 0;
+    bottom: 30px;
+    display: none;
+    width: max-content;
+    max-width: 220px;
+    padding: 7px 9px;
+    border: 1px solid #b8c4d2;
+    background: #102033;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(16, 32, 51, 0.2);
+}
+
+.usage-help:hover .usage-help__tooltip,
+.usage-help:focus .usage-help__tooltip {
+    display: block;
+}

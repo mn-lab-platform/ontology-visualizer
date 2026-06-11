@@ -1,0 +1,6 @@
+.periodic-frame {
+    width: 100%;
+    height: calc(100vh - 96px);
+    border: 0;
+    background: #fff;
+}
