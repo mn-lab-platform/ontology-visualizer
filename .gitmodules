@@ -1,0 +1,3 @@
+[submodule "cidoc-periodic-table"]
+	path = cidoc-periodic-table
+	url = https://github.com/RemoGrillo/cidoc-crm_periodic_table.git
