@@ -11,7 +11,10 @@
     <main class="app">
         <header class="app__header">
             <h1>Ontology Viewer Service</h1>
-
+            <label class="arches-picker">
+                Arches
+                <select id="arches-instance-select"></select>
+            </label>
             <nav class="app__tabs">
                 <button class="app__tab app__tab--active" data-view="usage">Ontology Usage</button>
                 <button class="app__tab" data-view="cidoc">CIDOC Periodic Table</button>
@@ -66,12 +69,11 @@
             <div class="periodic-toolbar">
                 <span>Based on RemoGrillo CIDOC-crm Periodic Table, MIT License</span>
             </div>
-            <iframe
-                id="cidoc-frame"
-                class="periodic-frame"
-                src="/cidoc-periodic-table/index.html"
-                title="CIDOC CRM Periodic Table"
-            ></iframe>
+                <iframe
+                    id="cidoc-frame"
+                    class="periodic-frame"
+                    title="CIDOC CRM Periodic Table"
+                ></iframe>
         </section>
     </main>
 

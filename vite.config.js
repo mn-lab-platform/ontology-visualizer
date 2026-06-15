@@ -1,14 +1,18 @@
 export default {
+    publicDir: false,
     server: {
         port: 9001,
         proxy: {
-            '/api': {
+            '/arches/local/api': {
                 target: 'http://localhost:8000',
-                changeOrigin: true
+                changeOrigin: true,
+                rewrite: (path) => path.replace(/^\/arches\/local\/api/, '/api')
             },
-            '/static': {
-                target: 'http://localhost:8000',
-                changeOrigin: true
+            '/arches/dev/api': {
+                target: 'https://dev.mn.cenagis.edu.pl',
+                changeOrigin: true,
+                secure: false,
+                rewrite: (path) => path.replace(/^\/arches\/dev\/api/, '/api')
             }
         }
     }

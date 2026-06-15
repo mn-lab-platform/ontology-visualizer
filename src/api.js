@@ -1,5 +1,12 @@
+import { getActiveArches } from './arches-instances.js';
+
 export async function apiFetch(path, options = {}) {
-    const response = await fetch(path, {
+    const activeArches = getActiveArches();
+    const normalizedPath = path.startsWith('/api/')
+        ? path.replace('/api', activeArches.apiPrefix)
+        : `${activeArches.apiPrefix}${path}`;
+
+    const response = await fetch(normalizedPath, {
         credentials: 'include',
         ...options
     });

@@ -1,19 +1,87 @@
+let activeApiPrefix = '/arches/local/api';
+
+self.addEventListener('install', () => {
+    self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+    event.waitUntil(self.clients.claim());
+});
+
+self.addEventListener('message', (event) => {
+    if (event.data?.type === 'SET_ARCHES_API_PREFIX') {
+        activeApiPrefix = event.data.apiPrefix || '/arches/local/api';
+        console.log('[CIDOCAdapter] active API prefix set', activeApiPrefix);
+    }
+});
+
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
+
+    const isVendorMainJs = url.pathname === '/cidoc-periodic-table/main.js';
+
+    if (isVendorMainJs) {
+        event.respondWith(loadPatchedVendorMainJs(event.request));
+        return;
+    }
 
     const isCidocJson =
         url.pathname === '/cidoc-periodic-table/cidoc7.1.json' ||
         url.pathname === '/cidoc-periodic-table/cidoc6.2.1.json';
 
-    if (!isCidocJson) {
+    if (isCidocJson) {
+        event.respondWith(loadArchesCidocData());
         return;
     }
-
-    event.respondWith(loadArchesCidocData());
 });
 
+async function loadPatchedVendorMainJs(request) {
+    const response = await fetch(request, {
+        cache: 'no-store'
+    });
+
+    let source = await response.text();
+
+    source = source.replace(
+        /function isCidocName\(string\)\{\s*let regex = \/\^\[E,P,L,D\]\\d\{1,3\}\.\*\\_\.\*\/gm\s*return\(regex\.test\(string\)\);\s*\}/,
+        `function isCidocName(string){
+    return /^(E|D|A|S|I|SP|P|L|AP|J|O)\\d{1,3}.*\\_.*/.test(string || "");
+}`
+    );
+
+    source = source.replace(
+        /function isCidocCode\(code\)\{\s*let regex = \/\^\[E,P,L,D\]\\d\{1,3\}\/gm\s*return\(regex\.test\(code\)\)\s*\}/,
+        `function isCidocCode(code){
+    return /^(E|D|A|S|I|SP|P|L|AP|J|O)\\d{1,3}/.test(code || "");
+}`
+    );
+
+    source = source.replace(
+        /function isCidocClass\(code\)\{\s*\/\/TODO: dinamically find letters and kind from json\s*return \(code\.startsWith\("E"\) \|\| code\.startsWith\("D"\)\);\s*\}/,
+        `function isCidocClass(code){
+    return /^(E|D|A|S|I|SP)\\d{1,3}/.test(code || "");
+}`
+    );
+
+    source = source.replace(
+        /function isCidocProperty\(code\)\{\s*return \(code\.startsWith\("P"\) \|\| code\.startsWith\("L"\)\);\s*\}/,
+        `function isCidocProperty(code){
+    return /^(P|L|AP|J|O)\\d{1,3}/.test(code || "");
+}`
+    );
+
+    source = `console.log('[CIDOCAdapter] patched vendor main.js loaded');\n${source}`;
+
+    return new Response(source, {
+        headers: {
+            'Content-Type': 'application/javascript',
+            'Cache-Control': 'no-store'
+        }
+    });
+}
+
 async function loadArchesCidocData() {
-    const response = await fetch('/api/cidoc-periodic-table', {
+    const response = await fetch(`${activeApiPrefix}/cidoc-periodic-table`, {
         credentials: 'include'
     });
 
@@ -32,20 +100,23 @@ async function loadArchesCidocData() {
 }
 
 function convertArchesCidocToRemogrilloFormat(data) {
-    const classIds = new Set(data.classes.map((entry) => entry.id));
-    const propertyIds = new Set(data.properties.map((entry) => entry.id));
+    const vendorClasses = data.classes.filter((entry) => isVendorClassId(entry.id));
+    const vendorProperties = data.properties.filter((entry) => isVendorPropertyId(entry.id));
 
-    const classes = data.classes.map((entry) => convertClass(entry, classIds));
+    const classIds = new Set(vendorClasses.map((entry) => entry.id));
+    const propertyIds = new Set(vendorProperties.map((entry) => entry.id));
 
-    const properties = data.properties
+    const classes = vendorClasses.map((entry) => convertClass(entry, classIds));
+
+    const properties = vendorProperties
         .map((entry) => convertProperty(entry, classIds, propertyIds))
         .filter(Boolean);
 
     console.log('[CIDOCAdapter] converted data', {
         classes: classes.length,
         properties: properties.length,
-        originalClasses: data.classes.length,
-        originalProperties: data.properties.length
+        skippedClasses: data.classes.length - classes.length,
+        skippedProperties: data.properties.length - properties.length
     });
 
     return {
@@ -59,6 +130,14 @@ function convertArchesCidocToRemogrilloFormat(data) {
             'rdfs:Class': classes
         }
     };
+}
+
+function isVendorClassId(id) {
+    return /^(E|D|A|S|I|SP)\d{1,3}/.test(id || '');
+}
+
+function isVendorPropertyId(id) {
+    return /^(P|L|AP|J|O)\d{1,3}/.test(id || '');
 }
 
 function label(value) {
@@ -101,6 +180,7 @@ function convertClass(entry, classIds) {
 
     return converted;
 }
+
 function convertProperty(entry, classIds, propertyIds) {
     const domain = (entry.domain || []).find((item) => classIds.has(item.id));
     const range = (entry.range || []).find((item) => classIds.has(item.id));

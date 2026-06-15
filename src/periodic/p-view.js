@@ -189,7 +189,7 @@ async function loadCidoc() {
     grid.innerHTML = '';
     detail.innerHTML = 'Select an item.';
 
-    const cidoc = await apiFetch('/api/cidoc-periodic-table');
+    const cidoc = await apiFetch('/arches/local/api/cidoc-periodic-table');
 
     periodicState.cidoc = cidoc;
     periodicState.selectedItem = null;
