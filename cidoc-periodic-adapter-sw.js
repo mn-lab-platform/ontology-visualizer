@@ -65,28 +65,28 @@ async function loadPatchedVendorMainJs(request) {
     source = source.replace(
         /function isCidocName\(string\)\{\s*let regex = \/\^\[E,P,L,D\]\\d\{1,3\}\.\*\\_\.\*\/gm\s*return\(regex\.test\(string\)\);\s*\}/,
         `function isCidocName(string){
-    return /^(E|D|A|S|I|SP|P|L|AP|J|O)\\d{1,3}.*\\_.*/.test(string || "");
+    return /^(E|D|A|B|S|I|SP|P|L|AP|BP|J|O)\\d{1,3}.*\\_.*/.test(string || "");
 }`
     );
 
     source = source.replace(
         /function isCidocCode\(code\)\{\s*let regex = \/\^\[E,P,L,D\]\\d\{1,3\}\/gm\s*return\(regex\.test\(code\)\)\s*\}/,
         `function isCidocCode(code){
-    return /^(E|D|A|S|I|SP|P|L|AP|J|O)\\d{1,3}/.test(code || "");
+    return /^(E|D|A|B|S|I|SP|P|L|AP|BP|J|O)\\d{1,3}/.test(code || "");
 }`
     );
 
     source = source.replace(
         /function isCidocClass\(code\)\{\s*\/\/TODO: dinamically find letters and kind from json\s*return \(code\.startsWith\("E"\) \|\| code\.startsWith\("D"\)\);\s*\}/,
         `function isCidocClass(code){
-    return /^(E|D|A|S|I|SP)\\d{1,3}/.test(code || "");
+    return /^(E|D|A|B|S|I|SP)\\d{1,3}/.test(code || "");
 }`
     );
 
     source = source.replace(
         /function isCidocProperty\(code\)\{\s*return \(code\.startsWith\("P"\) \|\| code\.startsWith\("L"\)\);\s*\}/,
         `function isCidocProperty(code){
-    return /^(P|L|AP|J|O)\\d{1,3}/.test(code || "");
+    return /^(P|L|AP|BP|J|O)\\d{1,3}/.test(code || "");
 }`
     );
 
@@ -153,11 +153,11 @@ function convertArchesCidocToRemogrilloFormat(data) {
 }
 
 function isVendorClassId(id) {
-    return /^(E|D|A|S|I|SP)\d{1,3}/.test(id || '');
+    return /^(E|D|A|B|S|I|SP)\d{1,3}/.test(id || '');
 }
 
 function isVendorPropertyId(id) {
-    return /^(P|L|AP|J|O)\d{1,3}/.test(id || '');
+    return /^(P|L|AP|BP|J|O)\d{1,3}/.test(id || '');
 }
 
 function label(value) {
