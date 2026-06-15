@@ -1,5 +1,24 @@
 let activeApiPrefix = '/arches/local/api';
 
+function scopePath() {
+    const pathname = new URL(self.registration.scope).pathname;
+    return pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+}
+
+function withoutScope(pathname) {
+    const basePath = scopePath();
+
+    if (basePath && pathname.startsWith(basePath + '/')) {
+        return pathname.slice(basePath.length);
+    }
+
+    return pathname;
+}
+
+function scopedPath(pathname) {
+    return scopePath() + pathname;
+}
+
 self.addEventListener('install', () => {
     self.skipWaiting();
 });
@@ -17,8 +36,9 @@ self.addEventListener('message', (event) => {
 
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
+    const pathname = withoutScope(url.pathname);
 
-    const isVendorMainJs = url.pathname === '/cidoc-periodic-table/main.js';
+    const isVendorMainJs = pathname === '/cidoc-periodic-table/main.js';
 
     if (isVendorMainJs) {
         event.respondWith(loadPatchedVendorMainJs(event.request));
@@ -26,8 +46,8 @@ self.addEventListener('fetch', (event) => {
     }
 
     const isCidocJson =
-        url.pathname === '/cidoc-periodic-table/cidoc7.1.json' ||
-        url.pathname === '/cidoc-periodic-table/cidoc6.2.1.json';
+        pathname === '/cidoc-periodic-table/cidoc7.1.json' ||
+        pathname === '/cidoc-periodic-table/cidoc6.2.1.json';
 
     if (isCidocJson) {
         event.respondWith(loadArchesCidocData());
@@ -81,7 +101,7 @@ async function loadPatchedVendorMainJs(request) {
 }
 
 async function loadArchesCidocData() {
-    const response = await fetch(`${activeApiPrefix}/cidoc-periodic-table`, {
+    const response = await fetch(scopedPath(activeApiPrefix + '/cidoc-periodic-table'), {
         credentials: 'include'
     });
 

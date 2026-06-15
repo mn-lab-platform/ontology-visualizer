@@ -1,9 +1,9 @@
 export const ARCHES_INSTANCES = [
-    {
-        id: 'local',
-        label: 'Local Arches',
-        apiPrefix: '/arches/local/api'
-    },
+    // {
+    //     id: 'local',
+    //     label: 'Local Arches',
+    //     apiPrefix: '/arches/local/api'
+    // },
     {
         id: 'dev',
         label: 'Dev Arches',

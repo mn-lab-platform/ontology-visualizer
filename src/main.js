@@ -1,51 +1,59 @@
-import { initUsageView } from './usage/u-view.js';
+import { initUsageView } from "./usage/u-view.js";
 import {
     ARCHES_INSTANCES,
     getActiveArches,
     getActiveArchesId,
     setActiveArchesId
-} from './arches-instances.js';
-function setActiveView(viewName) {
-    document.querySelectorAll('.app__tab').forEach((button) => {
-        button.classList.toggle('app__tab--active', button.dataset.view === viewName);
-    });
+} from "./arches-instances.js";
 
-    document.getElementById('usage-view').classList.toggle('app__view--hidden', viewName !== 'usage');
-    document.getElementById('cidoc-view').classList.toggle('app__view--hidden', viewName !== 'cidoc');
+function appBaseUrl() {
+    return import.meta.env.BASE_URL || "/";
 }
 
-document.querySelectorAll('.app__tab').forEach((button) => {
-    button.addEventListener('click', () => {
+function setActiveView(viewName) {
+    document.querySelectorAll(".app__tab").forEach((button) => {
+        button.classList.toggle("app__tab--active", button.dataset.view === viewName);
+    });
+
+    document.getElementById("usage-view").classList.toggle("app__view--hidden", viewName !== "usage");
+    document.getElementById("cidoc-view").classList.toggle("app__view--hidden", viewName !== "cidoc");
+}
+
+document.querySelectorAll(".app__tab").forEach((button) => {
+    button.addEventListener("click", () => {
         setActiveView(button.dataset.view);
     });
 });
+
 async function registerCidocAdapter() {
-    if (!('serviceWorker' in navigator)) {
-        console.warn('[CIDOCAdapter] service worker not supported');
+    if (!("serviceWorker" in navigator)) {
+        console.warn("[CIDOCAdapter] service worker not supported");
         return null;
     }
 
     try {
-        const registration = await navigator.serviceWorker.register('/cidoc-periodic-adapter-sw.js', {
-            scope: '/'
+        const baseUrl = appBaseUrl();
+        const registration = await navigator.serviceWorker.register(`${baseUrl}cidoc-periodic-adapter-sw.js`, {
+            scope: baseUrl
         });
 
         await navigator.serviceWorker.ready;
 
-        console.log('[CIDOCAdapter] registered', registration.scope);
+        console.log("[CIDOCAdapter] registered", registration.scope);
         return registration;
     } catch (error) {
-        console.error('[CIDOCAdapter] registration failed', error);
+        console.error("[CIDOCAdapter] registration failed", error);
         return null;
     }
 }
-function initArchesPicker() {
-    const select = document.getElementById('arches-instance-select');
 
-    select.innerHTML = '';
+function initArchesPicker() {
+    const select = document.getElementById("arches-instance-select");
+
+    select.innerHTML = "";
 
     ARCHES_INSTANCES.forEach((instance) => {
-        const option = document.createElement('option');
+        const option = document.createElement("option");
 
         option.value = instance.id;
         option.textContent = instance.label;
@@ -55,11 +63,12 @@ function initArchesPicker() {
 
     select.value = getActiveArchesId();
 
-    select.addEventListener('change', () => {
+    select.addEventListener("change", () => {
         setActiveArchesId(select.value);
         window.location.reload();
     });
 }
+
 async function initCidocFrame() {
     const registration = await registerCidocAdapter();
     const activeArches = getActiveArches();
@@ -67,17 +76,18 @@ async function initCidocFrame() {
 
     if (worker) {
         worker.postMessage({
-            type: 'SET_ARCHES_API_PREFIX',
+            type: "SET_ARCHES_API_PREFIX",
             apiPrefix: activeArches.apiPrefix
         });
     }
 
-    const frame = document.getElementById('cidoc-frame');
+    const frame = document.getElementById("cidoc-frame");
 
     if (frame) {
-        frame.src = `/cidoc-periodic-table/index.html?arches=${activeArches.id}`;
+        frame.src = `${appBaseUrl()}cidoc-periodic-table/index.html?arches=${activeArches.id}`;
     }
 }
+
 initArchesPicker();
 initUsageView();
 initCidocFrame();
