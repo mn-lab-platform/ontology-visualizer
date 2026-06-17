@@ -1,0 +1,161 @@
+.maxgraph-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.maxgraph-actions button {
+    border: 1px solid #b8c4d2;
+    background: #fff;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.maxgraph-actions button:hover {
+    border-color: #1f5f9f;
+}
+
+.maxgraph-shell {
+    position: relative;
+    min-height: 560px;
+    border: 1px solid #d8e0e8;
+    background: #fff;
+}
+
+.maxgraph-diagram {
+    width: 100%;
+    height: calc(100vh - 285px);
+    min-height: 560px;
+    overflow: scroll;
+    overscroll-behavior: contain;
+    background: #fff;
+    cursor: default;
+}
+
+.maxgraph-diagram--panning {
+    cursor: grabbing;
+    user-select: none;
+}
+
+.maxgraph-diagram > svg {
+    display: block;
+    min-width: 1600px;
+    min-height: 1000px;
+}
+.maxgraph-node-label {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    padding: 8px 96px 8px 10px;
+    line-height: 1.25;
+    text-align: center;
+}
+
+.maxgraph-node-label span {
+    color: #52606d;
+    font-size: 10px;
+}
+
+.maxgraph-output {
+    max-height: 220px;
+    margin: 12px 0 0;
+    padding: 12px;
+    overflow: auto;
+    border: 1px solid #d8e0e8;
+    background: #101820;
+    color: #d7f7df;
+    font-size: 12px;
+}
+
+.maxgraph-output:empty {
+    display: none;
+}
+
+.maxgraph-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.maxgraph-details {
+    max-height: calc(100vh - 285px);
+    min-height: 560px;
+    overflow: auto;
+    border: 1px solid #d8e0e8;
+    background: #fff;
+    padding: 14px;
+    font-size: 12px;
+}
+
+.maxgraph-details__header {
+    border-bottom: 1px solid #d8e0e8;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+}
+
+.maxgraph-details__header h3 {
+    margin: 0 0 4px;
+    font-size: 16px;
+}
+
+.maxgraph-details__header span,
+.maxgraph-details__muted {
+    color: #6b7684;
+}
+
+.maxgraph-details__section {
+    margin-top: 14px;
+}
+
+.maxgraph-details__section h4 {
+    margin: 0 0 8px;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #52606d;
+}
+
+.maxgraph-details dl {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 6px 10px;
+    margin: 0;
+}
+
+.maxgraph-details dt {
+    color: #6b7684;
+}
+
+.maxgraph-details dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.maxgraph-details ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.maxgraph-details li {
+    margin-bottom: 8px;
+}
+
+.maxgraph-details li span {
+    display: block;
+    color: #6b7684;
+    overflow-wrap: anywhere;
+}
+
+.maxgraph-details pre {
+    max-height: 260px;
+    overflow: auto;
+    padding: 8px;
+    background: #f5f7fa;
+    border: 1px solid #d8e0e8;
+    font-size: 11px;
+}

@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="/styles/main.css">
     <link rel="stylesheet" href="/styles/usage.css">
     <link rel="stylesheet" href="/styles/periodic.css">
+    <link rel="stylesheet" href="/styles/maxgraph.css">
 </head>
 <body>
     <main class="app">
@@ -17,6 +18,7 @@
             </label>
             <nav class="app__tabs">
                 <button class="app__tab app__tab--active" data-view="usage">Ontology Usage</button>
+                <button class="app__tab" data-view="maxgraph">Diagram Editor</button>
                 <button class="app__tab" data-view="cidoc">CIDOC Periodic Table</button>
             </nav>
         </header>
@@ -63,6 +65,41 @@
                     </div>
                 </div>
             </div>
+        </section>
+
+        <section id="maxgraph-view" class="app__view app__view--hidden">
+            <div class="toolbar">
+                <label>
+                    Resource model
+                    <select id="maxgraph-model-select">
+                        <option value="">Loading models...</option>
+                    </select>
+                </label>
+
+                <button id="maxgraph-load">Load graph</button>
+            </div>
+
+            <div class="summary" id="maxgraph-summary">Choose a model.</div>
+
+            <div class="maxgraph-actions">
+                <button id="maxgraph-fit">Fit</button>
+                <button id="maxgraph-layout">Layout</button>
+                <button id="maxgraph-align-left">Align left</button>
+                <button id="maxgraph-align-top">Align top</button>
+                <button id="maxgraph-export">Export layout</button>
+                <span id="maxgraph-status" class="layout-status"></span>
+            </div>
+            <div class="maxgraph-workspace">
+                <div class="maxgraph-shell">
+                    <div id="maxgraph-diagram" class="maxgraph-diagram"></div>
+                </div>
+
+                <aside id="maxgraph-details" class="maxgraph-details">
+                    <div class="maxgraph-details__empty">Select a node</div>
+                </aside>
+            </div>
+
+            <pre id="maxgraph-output" class="maxgraph-output" aria-label="Exported layout"></pre>
         </section>
 
         <section id="cidoc-view" class="app__view app__view--hidden">
