@@ -1,5 +1,5 @@
 export default {
-    base: '/ontology/',
+    base: '/',
     publicDir: false,
     server: {
         port: 9001,

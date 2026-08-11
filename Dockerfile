@@ -18,5 +18,5 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 COPY cidoc-periodic-table /usr/share/nginx/html/cidoc-periodic-table
 COPY cidoc-periodic-adapter-sw.js /usr/share/nginx/html/cidoc-periodic-adapter-sw.js
 
-EXPOSE 80
+EXPOSE 81
 CMD ["nginx", "-g", "daemon off;"]

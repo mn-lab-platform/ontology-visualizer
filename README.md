@@ -33,24 +33,30 @@ http://localhost:8000
 Build from the repository root:
 
 ```powershell
-docker build -t ontology-viewer-service ./service
+docker build -t ontology-viewer-service ./ontology-visualizer
 ```
 
 Run locally against an Arches instance on the host:
 
 ```powershell
-docker run --rm -p 9001:80 `
-  -e ARCHES_BASE_URL=http://host.docker.internal:8000 `
-  -e ARCHES_HOST_HEADER=localhost:8000 `
+docker run --rm -p 81:81 `
+  -e ARCHES_DEV_BASE_URL=http://host.docker.internal:8000 `
+  -e ARCHES_DEV_HOST_HEADER=localhost:8000 `
   ontology-viewer-service
+```
+
+The viewer is then available at:
+
+```text
+http://tezaurus:81
 ```
 
 For another Arches host, change both environment variables:
 
 ```powershell
-docker run --rm -p 9001:80 `
-  -e ARCHES_BASE_URL=https://your-arches-host.example `
-  -e ARCHES_HOST_HEADER=your-arches-host.example `
+docker run --rm -p 81:81 `
+  -e ARCHES_DEV_BASE_URL=https://your-arches-host.example `
+  -e ARCHES_DEV_HOST_HEADER=your-arches-host.example `
   ontology-viewer-service
 ```
 
