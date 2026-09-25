@@ -1,0 +1,13 @@
+services:
+  ontology-viewer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ontology-viewer-service:local
+    container_name: ontology-viewer-service
+    ports:
+      - "81:81"
+    environment:
+      ARCHES_MAP_BASE_URL: ${ARCHES_MAP_BASE_URL:?Set ARCHES_MAP_BASE_URL in .env}
+      ARCHES_MAP_HOST_HEADER: ${ARCHES_MAP_HOST_HEADER:?Set ARCHES_MAP_HOST_HEADER in .env}
+    restart: unless-stopped

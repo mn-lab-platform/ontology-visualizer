@@ -12,6 +12,8 @@ It provides two views:
 Run from this directory:
 
 ```powershell
+Copy-Item .env.example .env
+# Set the Arches URLs and host headers in .env.
 npm install
 npm run dev
 ```
@@ -22,43 +24,30 @@ The dev server runs at:
 http://localhost:9001
 ```
 
-The Vite dev proxy expects Arches to be available at:
-
-```text
-http://localhost:8000
-```
+The Vite dev proxy uses the Arches base URLs configured in `.env`.
 
 ## Docker
 
-Build from the repository root:
+Copy the environment template and set the values for your Arches instance:
 
 ```powershell
-docker build -t ontology-viewer-service ./ontology-visualizer
+Copy-Item .env.example .env
 ```
 
-Run locally against an Arches instance on the host:
+Build and run the service:
 
 ```powershell
-docker run --rm -p 81:81 `
-  -e ARCHES_DEV_BASE_URL=http://host.docker.internal:8000 `
-  -e ARCHES_DEV_HOST_HEADER=localhost:8000 `
-  ontology-viewer-service
+docker compose up -d --build
 ```
 
 The viewer is then available at:
 
 ```text
-http://tezaurus:81
+http://localhost:81
 ```
 
-For another Arches host, change both environment variables:
+`.env` is ignored by Git and the Docker build context. Commit only `.env.example`.
 
-```powershell
-docker run --rm -p 81:81 `
-  -e ARCHES_DEV_BASE_URL=https://your-arches-host.example `
-  -e ARCHES_DEV_HOST_HEADER=your-arches-host.example `
-  ontology-viewer-service
-```
 
 ## API Usage
 

@@ -1,7 +1,6 @@
 node_modules/
-service/node_modules/
 dist/
-service/dist/
+.git/
 .env
 .env.*
 !.env.example

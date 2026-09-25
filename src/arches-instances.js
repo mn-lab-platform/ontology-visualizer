@@ -5,9 +5,9 @@ export const ARCHES_INSTANCES = [
     //     apiPrefix: '/arches/local/api'
     // },
     {
-        id: 'dev',
-        label: 'Dev Arches',
-        apiPrefix: '/arches/dev/api'
+        id: 'map',
+        label: 'MAP Arches',
+        apiPrefix: '/arches/map/api'
     }
 ];
 

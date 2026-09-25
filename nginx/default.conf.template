@@ -1,17 +1,22 @@
 server {
     listen 81;
     server_name _;
+    resolver 127.0.0.11 valid=30s ipv6=off;
 
     root /usr/share/nginx/html;
     index index.html;
 
 
 
-    location /arches/dev/api/ {
-        proxy_pass ${ARCHES_DEV_BASE_URL}/api/;
+    location /arches/map/api/ {
+        set $arches_map_base_url ${ARCHES_MAP_BASE_URL};
+        rewrite ^/arches/map/api/(.*)$ /api/$1 break;
+        proxy_pass $arches_map_base_url;
         proxy_http_version 1.1;
+        proxy_ssl_server_name on;
+        proxy_ssl_name ${ARCHES_MAP_HOST_HEADER};
 
-        proxy_set_header Host ${ARCHES_DEV_HOST_HEADER};
+        proxy_set_header Host ${ARCHES_MAP_HOST_HEADER};
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
