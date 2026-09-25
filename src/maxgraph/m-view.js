@@ -1,6 +1,7 @@
 import { apiFetch } from '../api.js';
 import { getElements, setStatus, setSummary } from './elements.js';
 import { exportLayout } from './export-layout.js';
+import { loadStoredLayout } from './layout-storage.js';
 import { createGraphInstance, ensureScrollableWorkspace } from './graph-config.js';
 import {
     buildChildrenMap,
@@ -12,6 +13,7 @@ import {
     getNodeTreeHeight
 } from './graph-data.js';
 import { getEdgeStyle, getNodeStyle } from './graph-styles.js';
+import { updateAffectedEdgeOrder } from './interactions.js';
 import { renderNodeTitleLabels } from './labels.js';
 import { alignSelection, applySavedEdgeLayout, fitGraph, runLayout } from './layout.js';
 import { state } from './state.js';
@@ -45,7 +47,7 @@ async function loadModels() {
     setSummary(`Loaded ${state.models.length} resource models.`);
 }
 
-function renderMaxgraph(rawGraph) {
+function renderMaxgraph(rawGraph, graphId) {
     const graph = createGraphInstance();
     const parent = graph.getDefaultParent();
     const childrenMap = buildChildrenMap(rawGraph.edges || []);
@@ -53,6 +55,7 @@ function renderMaxgraph(rawGraph) {
     const heightById = new Map();
 
     state.rawGraph = rawGraph;
+    state.currentGraphId = graphId;
     state.edgeSlots = edgeSlots;
 
     (rawGraph.nodes || []).forEach((node) => {
@@ -63,7 +66,7 @@ function renderMaxgraph(rawGraph) {
         (rawGraph.nodes || []).forEach((node, index) => {
             const savedNodeLayout = rawGraph.layout?.nodes?.[node.id];
             const treeHeight = heightById.get(node.id) || 72;
-            const size = getNodeSize(node, treeHeight);
+            const size = savedNodeLayout?.size || getNodeSize(node, treeHeight);
             const position = getNodePosition(index, savedNodeLayout);
             const cell = graph.insertVertex({
                 parent,
@@ -114,6 +117,7 @@ function renderMaxgraph(rawGraph) {
     if (!rawGraph.layout) {
         runLayout();
     } else {
+        updateAffectedEdgeOrder(graph, Array.from(state.nodeCells.values()));
         //renderPortLabels();
         renderNodeTitleLabels();
         ensureScrollableWorkspace();
@@ -137,13 +141,29 @@ async function loadSelectedGraph() {
     setSummary('Loading graph...');
 
     const rawGraph = await apiFetch(`/api/ontology-usage/models/${graphId}`);
+    let savedLayout = null;
+    let storageError = null;
 
-    renderMaxgraph(rawGraph);
+    try {
+        savedLayout = await loadStoredLayout(graphId);
+        rawGraph.layout = savedLayout;
+    } catch (error) {
+        storageError = error;
+        console.warn('[MaxGraph] saved layout load failed', error);
+    }
+
+    renderMaxgraph(rawGraph, graphId);
 
     setSummary(
         `${rawGraph.model.name}: ${rawGraph.nodes.length} nodes, ${rawGraph.edges.length} edges.`
     );
-    setStatus('Loaded in maxGraph');
+    setStatus(
+        storageError
+            ? `Loaded; local layout unavailable: ${storageError.message}`
+            : savedLayout
+                ? 'Loaded saved layout'
+                : 'Loaded with automatic layout'
+    );
 }
 
 export function initMaxgraphView() {
@@ -167,7 +187,12 @@ export function initMaxgraphView() {
     layoutButton.addEventListener('click', runLayout);
     alignLeftButton.addEventListener('click', () => alignSelection('left'));
     alignTopButton.addEventListener('click', () => alignSelection('top'));
-    exportButton.addEventListener('click', exportLayout);
+    exportButton.addEventListener('click', () => {
+        exportLayout().catch((error) => {
+            setStatus(`Layout save failed: ${error.message}`);
+            console.error('[MaxGraph] layout save failed', error);
+        });
+    });
 
     loadModels().catch((error) => {
         setSummary(error.message);

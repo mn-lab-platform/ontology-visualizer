@@ -106,9 +106,19 @@ export function ensureScrollableWorkspace() {
     const svg = container.querySelector('svg');
 
     if (svg) {
-        svg.style.width = `${Math.ceil(width)}px`;
-        svg.style.height = `${Math.ceil(height)}px`;
-        svg.style.minWidth = `${Math.ceil(width)}px`;
-        svg.style.minHeight = `${Math.ceil(height)}px`;
+        const nextWidth = `${Math.ceil(width)}px`;
+        const nextHeight = `${Math.ceil(height)}px`;
+
+        if (svg.style.width !== nextWidth || svg.style.height !== nextHeight) {
+            console.debug('[MaxGraph] workspace size changed', {
+                bounds,
+                from: { width: svg.style.width, height: svg.style.height },
+                to: { width: nextWidth, height: nextHeight }
+            });
+        }
+        svg.style.width = nextWidth;
+        svg.style.height = nextHeight;
+        svg.style.minWidth = nextWidth;
+        svg.style.minHeight = nextHeight;
     }
 }

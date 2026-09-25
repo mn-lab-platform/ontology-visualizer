@@ -4,7 +4,7 @@ Standalone frontend service for exploring Arches ontology data.
 
 It provides two views:
 
-- Ontology Usage Explorer: resource model graph visualization using Cytoscape.js.
+- Diagram Editor: resource model graph visualization and editing using maxGraph.
 - CIDOC Periodic Table: embedded CIDOC CRM periodic table UI with an adapter for Arches data.
 
 ## Development
@@ -55,10 +55,19 @@ The service reads data from existing Arches endpoints:
 
 - `/api/ontology-usage/models`
 - `/api/ontology-usage/models/<graph_id>`
-- `/api/ontology-usage/models/<graph_id>/layout`
 - `/api/cidoc-periodic-table`
 
 No Arches backend logic is duplicated in this service.
+
+## Saved Diagram Layouts
+
+`Save layout` persists the current Diagram Editor layout through a local API. The API stores one JSON file per provider and resource model in the shared Docker volume `ontology_layouts`:
+
+```text
+<provider>/<resource-graph-id>.json
+```
+
+For example, a MAP Arches model is stored as `map/<resource-graph-id>.json`. When a model is loaded, a saved local layout takes precedence; otherwise the editor applies its automatic layout.
 
 ## CIDOC Periodic Table
 

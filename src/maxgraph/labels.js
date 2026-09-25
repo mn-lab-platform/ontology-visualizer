@@ -112,6 +112,7 @@ export function renderNodeTitleLabels() {
         return;
     }
 
+    console.debug('[MaxGraph] rebuilding all node title labels', { nodeCount: (state.rawGraph.nodes || []).length });
     clearNodeTitleLabels();
 
     const parent = state.graph.getDefaultParent();
@@ -149,6 +150,7 @@ export function renderNodeTitleLabels() {
             });
         });
     });
+    console.debug('[MaxGraph] rebuilt node title labels', { labelCount: state.nodeTitleCells.length });
 }
 
 export function scheduleLabelRender(onRendered) {
@@ -156,9 +158,11 @@ export function scheduleLabelRender(onRendered) {
         return;
     }
 
+    console.debug('[MaxGraph] scheduled full node title-label rebuild');
     state.portLabelFrame = window.requestAnimationFrame(() => {
         state.portLabelFrame = null;
         //renderPortLabels();
+        console.debug('[MaxGraph] running scheduled full node title-label rebuild');
         renderNodeTitleLabels();
         onRendered?.();
     });

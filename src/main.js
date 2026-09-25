@@ -1,4 +1,3 @@
-import { initUsageView } from "./usage/u-view.js";
 import { initMaxgraphView } from "./maxgraph/m-view.js";
 import {
     ARCHES_INSTANCES,
@@ -16,7 +15,6 @@ function setActiveView(viewName) {
         button.classList.toggle("app__tab--active", button.dataset.view === viewName);
     });
 
-    document.getElementById("usage-view").classList.toggle("app__view--hidden", viewName !== "usage");
     document.getElementById("maxgraph-view").classList.toggle("app__view--hidden", viewName !== "maxgraph");
     document.getElementById("cidoc-view").classList.toggle("app__view--hidden", viewName !== "cidoc");
 }
@@ -91,6 +89,5 @@ async function initCidocFrame() {
 }
 
 initArchesPicker();
-initUsageView();
 initMaxgraphView();
 initCidocFrame();
