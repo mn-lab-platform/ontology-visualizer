@@ -165,8 +165,8 @@ export function attachViewportControls(container, ensureScrollableWorkspace) {
     let dragState = null;
     let pendingZoomScale = null;
     let pendingZoomPointerPosition = null;
-    let zoomCommitTimer = null;
-    let zoomWorkspaceTimer = null;
+    let zoomFrame = null;
+    let workspaceRefreshTimer = null;
 
     function isPanButton(event) {
         return event.button === 2;
@@ -203,35 +203,33 @@ export function attachViewportControls(container, ensureScrollableWorkspace) {
 
         pendingZoomScale = Math.min(Math.max(baseScale * (event.deltaY < 0 ? 1.1 : 0.9), 0.08), 2.5);
 
-        if (!zoomCommitTimer) {
-            zoomCommitTimer = window.setTimeout(() => {
-                zoomCommitTimer = null;
+        if (!zoomFrame) {
+            zoomFrame = window.requestAnimationFrame(() => {
+                zoomFrame = null;
 
                 if (!state.graph || pendingZoomScale === null) {
                     return;
                 }
 
                 const nextScale = pendingZoomScale;
-                pendingZoomScale = null;
                 const pointerPosition = pendingZoomPointerPosition;
+                pendingZoomScale = null;
                 pendingZoomPointerPosition = null;
-
                 const currentScale = state.graph.getView().scale;
                 const scaleRatio = nextScale / currentScale;
                 const scrollLeft = container.scrollLeft;
                 const scrollTop = container.scrollTop;
 
                 state.graph.zoomTo(nextScale, false);
-                ensureScrollableWorkspace();
                 container.scrollLeft = (scrollLeft + pointerPosition.x) * scaleRatio - pointerPosition.x;
                 container.scrollTop = (scrollTop + pointerPosition.y) * scaleRatio - pointerPosition.y;
-
-                window.clearTimeout(zoomWorkspaceTimer);
-                zoomWorkspaceTimer = window.setTimeout(() => {
-                    ensureScrollableWorkspace();
-                }, 120);
-            }, 80);
+            });
         }
+
+        window.clearTimeout(workspaceRefreshTimer);
+        workspaceRefreshTimer = window.setTimeout(() => {
+            ensureScrollableWorkspace();
+        }, 180);
 
         event.preventDefault();
     }, { passive: false });
