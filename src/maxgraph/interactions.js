@@ -167,6 +167,7 @@ export function attachViewportControls(container, ensureScrollableWorkspace) {
     let pendingZoomPointerPosition = null;
     let zoomFrame = null;
     let workspaceRefreshTimer = null;
+    let pendingZoomScrollPosition = null;
 
     function isPanButton(event) {
         return event.button === 2;
@@ -189,6 +190,29 @@ export function attachViewportControls(container, ensureScrollableWorkspace) {
             x: event.clientX - rect.left,
             y: event.clientY - rect.top
         };
+    }
+
+    function ensureViewportFits(scrollPosition) {
+        const svg = container.querySelector('svg');
+
+        if (!svg || !scrollPosition) {
+            return;
+        }
+
+        const requiredWidth = Math.ceil(scrollPosition.left + container.clientWidth + 1);
+        const requiredHeight = Math.ceil(scrollPosition.top + container.clientHeight + 1);
+        const currentWidth = Number.parseFloat(svg.style.width) || 0;
+        const currentHeight = Number.parseFloat(svg.style.height) || 0;
+
+        if (requiredWidth > currentWidth) {
+            svg.style.width = `${requiredWidth}px`;
+            svg.style.minWidth = `${requiredWidth}px`;
+        }
+
+        if (requiredHeight > currentHeight) {
+            svg.style.height = `${requiredHeight}px`;
+            svg.style.minHeight = `${requiredHeight}px`;
+        }
     }
 
     container.addEventListener('wheel', (event) => {
@@ -217,18 +241,35 @@ export function attachViewportControls(container, ensureScrollableWorkspace) {
                 pendingZoomPointerPosition = null;
                 const currentScale = state.graph.getView().scale;
                 const scaleRatio = nextScale / currentScale;
-                const scrollLeft = container.scrollLeft;
-                const scrollTop = container.scrollTop;
+                const scrollPosition = pendingZoomScrollPosition || {
+                    left: container.scrollLeft,
+                    top: container.scrollTop
+                };
+
+                pendingZoomScrollPosition = {
+                    left: Math.max(0, (scrollPosition.left + pointerPosition.x) * scaleRatio - pointerPosition.x),
+                    top: Math.max(0, (scrollPosition.top + pointerPosition.y) * scaleRatio - pointerPosition.y)
+                };
 
                 state.graph.zoomTo(nextScale, false);
-                container.scrollLeft = (scrollLeft + pointerPosition.x) * scaleRatio - pointerPosition.x;
-                container.scrollTop = (scrollTop + pointerPosition.y) * scaleRatio - pointerPosition.y;
+                ensureViewportFits(pendingZoomScrollPosition);
+                container.scrollLeft = pendingZoomScrollPosition.left;
+                container.scrollTop = pendingZoomScrollPosition.top;
             });
         }
 
         window.clearTimeout(workspaceRefreshTimer);
         workspaceRefreshTimer = window.setTimeout(() => {
+            const finalScrollPosition = pendingZoomScrollPosition;
+
             ensureScrollableWorkspace();
+
+            if (finalScrollPosition) {
+                ensureViewportFits(finalScrollPosition);
+                container.scrollLeft = finalScrollPosition.left;
+                container.scrollTop = finalScrollPosition.top;
+                pendingZoomScrollPosition = null;
+            }
         }, 180);
 
         event.preventDefault();
