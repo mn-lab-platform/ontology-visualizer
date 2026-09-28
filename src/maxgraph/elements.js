@@ -7,26 +7,40 @@ export function getElements() {
         alignLeftButton: document.getElementById('maxgraph-align-left'),
         alignTopButton: document.getElementById('maxgraph-align-top'),
         exportButton: document.getElementById('maxgraph-export'),
+        searchToggle: document.getElementById('maxgraph-search-toggle'),
+        search: document.getElementById('maxgraph-search'),
+        searchInput: document.getElementById('maxgraph-search-input'),
+        searchResults: document.getElementById('maxgraph-search-results'),
         summary: document.getElementById('maxgraph-summary'),
         status: document.getElementById('maxgraph-status'),
-        output: document.getElementById('maxgraph-output'),
         container: document.getElementById('maxgraph-diagram'),
         details: document.getElementById('maxgraph-details')
     };
 }
 
-export function setStatus(message) {
-    const { status } = getElements();
+function setMessage(element, message, type = '') {
+    if (!element) {
+        return;
+    }
 
-    if (status) {
-        status.textContent = message;
+    element.textContent = message;
+    const messageType = type || (message ? 'info' : '');
+
+    if (messageType) {
+        element.dataset.state = messageType;
+    } else {
+        delete element.dataset.state;
     }
 }
 
-export function setSummary(message) {
+export function setStatus(message, type = '') {
+    const { status } = getElements();
+
+    setMessage(status, message, type);
+}
+
+export function setSummary(message, type = '') {
     const { summary } = getElements();
 
-    if (summary) {
-        summary.textContent = message;
-    }
+    setMessage(summary, message, type);
 }

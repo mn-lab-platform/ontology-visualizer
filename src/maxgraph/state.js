@@ -1,6 +1,7 @@
 export const state = {
     models: [],
     rawGraph: null,
+    savedLayout: null,
     currentGraphId: null,
     graph: null,
     nodeCells: new Map(),
@@ -27,6 +28,7 @@ export function resetGraphState() {
 
     state.graph = null;
     state.rawGraph = null;
+    state.savedLayout = null;
     state.currentGraphId = null;
     state.nodeCells = new Map();
     state.edgeCells = new Map();

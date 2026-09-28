@@ -1,4 +1,4 @@
-import { getElements, setStatus } from './elements.js';
+import { setStatus } from './elements.js';
 import { state } from './state.js';
 import { saveStoredLayout } from './layout-storage.js';
 
@@ -46,19 +46,20 @@ export function collectLayoutState() {
 }
 
 export async function exportLayout() {
-    const { output } = getElements();
-
     if (!state.graph || !state.currentGraphId) {
-        setStatus('Load a resource model first');
+        setStatus('Load a resource model first', 'warning');
         return;
     }
 
     const layout = collectLayoutState();
 
-    setStatus('Saving layout...');
+    setStatus('Saving layout...', 'loading');
     await saveStoredLayout(state.currentGraphId, layout);
 
-    output.textContent = JSON.stringify(layout, null, 2);
-    setStatus(`Saved layout for ${Object.keys(layout.nodes).length} nodes`);
+    setStatus(`Saved layout for ${Object.keys(layout.nodes).length} nodes`, 'success');
+    state.savedLayout = layout;
+    if (state.rawGraph) {
+        state.rawGraph.layout = layout;
+    }
     console.log('[MaxGraph] saved layout', layout);
 }

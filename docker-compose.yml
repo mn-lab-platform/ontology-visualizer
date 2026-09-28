@@ -9,7 +9,7 @@ services:
     environment:
       LAYOUTS_DIR: /data/layouts
     volumes:
-      - ontology_layouts:/data/layouts
+      - ./data:/data/layouts
     restart: unless-stopped
 
   ontology-viewer:
@@ -24,7 +24,7 @@ services:
     environment:
       ARCHES_MAP_BASE_URL: ${ARCHES_MAP_BASE_URL:?Set ARCHES_MAP_BASE_URL in .env}
       ARCHES_MAP_HOST_HEADER: ${ARCHES_MAP_HOST_HEADER:?Set ARCHES_MAP_HOST_HEADER in .env}
-    restart: unless-stopped
+    restart: always
     depends_on:
       - layout-api
 
@@ -43,5 +43,4 @@ services:
       - layout-api
 
 volumes:
-  ontology_layouts:
   ontology_viewer_node_modules:

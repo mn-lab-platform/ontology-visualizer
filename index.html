@@ -30,30 +30,66 @@
                     </select>
                 </label>
 
-                <button id="maxgraph-load">Load graph</button>
+                <button id="maxgraph-load" disabled>Load graph</button>
             </div>
 
-            <div class="summary" id="maxgraph-summary">Choose a model.</div>
+            <div class="summary" id="maxgraph-summary" role="status" aria-live="polite">Loading resource models...</div>
 
-            <div class="maxgraph-actions">
-                <button id="maxgraph-fit">Fit</button>
-                <button id="maxgraph-layout">Layout</button>
-                <button id="maxgraph-align-left">Align left</button>
-                <button id="maxgraph-align-top">Align top</button>
-                <button id="maxgraph-export">Save layout</button>
-                <span id="maxgraph-status" class="layout-status"></span>
+            <div class="maxgraph-actions" aria-label="Diagram actions">
+                <div class="maxgraph-action-group" role="group" aria-label="Navigation">
+                    <span class="maxgraph-action-group__label">Navigate</span>
+                    <button id="maxgraph-fit" disabled>Fit</button>
+                </div>
+                <div class="maxgraph-action-group" role="group" aria-label="Automatic layout">
+                    <span class="maxgraph-action-group__label">Arrange</span>
+                    <button id="maxgraph-layout" disabled>Layout</button>
+                </div>
+                <div class="maxgraph-action-group" role="group" aria-label="Alignment">
+                    <span class="maxgraph-action-group__label">Align</span>
+                    <button id="maxgraph-align-left" disabled>Left</button>
+                    <button id="maxgraph-align-top" disabled>Top</button>
+                </div>
+                <div class="maxgraph-action-group" role="group" aria-label="Save">
+                    <span class="maxgraph-action-group__label">Save</span>
+                    <button id="maxgraph-export" class="maxgraph-actions__primary" disabled>Save layout</button>
+                </div>
+                <span id="maxgraph-status" class="layout-status" role="status" aria-live="polite"></span>
             </div>
             <div class="maxgraph-workspace">
                 <div class="maxgraph-shell">
                     <div id="maxgraph-diagram" class="maxgraph-diagram"></div>
+                    <div class="maxgraph-help" tabindex="0" aria-label="Diagram controls">
+                        ?
+                        <div class="maxgraph-help__tooltip" role="tooltip">
+                            <strong>Controls</strong>
+                            <span>Mouse wheel: zoom</span>
+                            <span>Right-click drag: pan</span>
+                            <span>Ctrl/Cmd + click: select multiple nodes</span>
+                            <span>Drag empty space: select an area</span>
+                            <span>Ctrl/Cmd + Z: undo</span>
+                        </div>
+                    </div>
                 </div>
 
-                <aside id="maxgraph-details" class="maxgraph-details">
-                    <div class="maxgraph-details__empty">Select a node</div>
-                </aside>
+                <div class="maxgraph-inspector">
+                    <div class="maxgraph-inspector__toolbar">
+                        <button id="maxgraph-search-toggle" class="maxgraph-icon-button" type="button" aria-label="Search nodes" aria-controls="maxgraph-search" aria-expanded="false" disabled>
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="11" cy="11" r="6"></circle>
+                                <path d="m16 16 4 4"></path>
+                            </svg>
+                        </button>
+                        <div id="maxgraph-search" class="maxgraph-search" hidden>
+                            <label class="maxgraph-visually-hidden" for="maxgraph-search-input">Search nodes</label>
+                            <input id="maxgraph-search-input" type="search" placeholder="Find a node…" autocomplete="off">
+                            <ul id="maxgraph-search-results" class="maxgraph-search__results" aria-label="Search results"></ul>
+                        </div>
+                    </div>
+                    <aside id="maxgraph-details" class="maxgraph-details">
+                        <div class="maxgraph-details__empty">Loading legend...</div>
+                    </aside>
+                </div>
             </div>
-
-            <pre id="maxgraph-output" class="maxgraph-output" aria-label="Exported layout"></pre>
         </section>
 
         <section id="cidoc-view" class="app__view app__view--hidden">

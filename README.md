@@ -61,13 +61,13 @@ No Arches backend logic is duplicated in this service.
 
 ## Saved Diagram Layouts
 
-`Save layout` persists the current Diagram Editor layout through a local API. The API stores one JSON file per provider and resource model in the shared Docker volume `ontology_layouts`:
+`Save layout` persists the current Diagram Editor layout through a local API. The API stores one JSON file per provider and resource model in `data/` in this project directory:
 
 ```text
-<provider>/<resource-graph-id>.json
+data/<provider>/<resource-graph-id>.json
 ```
 
-For example, a MAP Arches model is stored as `map/<resource-graph-id>.json`. When a model is loaded, a saved local layout takes precedence; otherwise the editor applies its automatic layout.
+For example, a MAP Arches model is stored as `data/map/<resource-graph-id>.json`. When a model is loaded, a saved local layout takes precedence; otherwise the editor applies its automatic layout. Layout JSON files are ignored by Git.
 
 ## CIDOC Periodic Table
 

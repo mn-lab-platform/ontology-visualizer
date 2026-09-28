@@ -1,7 +1,17 @@
 import { InternalEvent } from '@maxgraph/core';
 import { getElements } from './elements.js';
+import { FAMILY_COLORS } from './graph-styles.js';
 import { escapeHtml } from './labels.js';
 import { state } from './state.js';
+
+const FAMILY_DESCRIPTIONS = {
+    'CIDOC CRM': 'Core CIDOC CRM classes',
+    CRMarchaeo: 'Archaeological extension',
+    CRMdig: 'Digital provenance extension',
+    CRMsci: 'Scientific observation extension',
+    CRMgeo: 'Spatial extension',
+    Literal: 'Literal values and other datatypes'
+};
 
 function getNodeEdges(nodeId) {
     const edges = state.rawGraph?.edges || [];
@@ -90,11 +100,31 @@ function renderNodeDetails(cell) {
     `;
 }
 
-function clearDetails() {
+export function renderDetailsLegend() {
     const { details } = getElements();
 
     if (details) {
-        details.innerHTML = '<div class="maxgraph-details__empty">Select a node</div>';
+        details.innerHTML = `
+            <header class="maxgraph-details__header">
+                <h3>Ontology families</h3>
+                <span>Select a node to see its metadata</span>
+            </header>
+            <ul class="maxgraph-legend" aria-label="Ontology family colors">
+                ${Object.entries(FAMILY_COLORS).map(([family, colors]) => `
+                    <li class="maxgraph-legend__item">
+                        <span
+                            class="maxgraph-legend__swatch"
+                            style="--legend-fill: ${colors.fill}; --legend-stroke: ${colors.stroke}"
+                            aria-hidden="true"
+                        ></span>
+                        <span class="maxgraph-legend__label">
+                            <strong>${escapeHtml(family)}</strong>
+                            <span>${escapeHtml(FAMILY_DESCRIPTIONS[family] || '')}</span>
+                        </span>
+                    </li>
+                `).join('')}
+            </ul>
+        `;
     }
 }
 function renderConcepts(concepts) {
@@ -128,15 +158,27 @@ function renderConcepts(concepts) {
     `;
 }
 export function attachDetailsPanel(graph) {
+    renderDetailsLegend();
+
     graph.getSelectionModel().addListener(InternalEvent.CHANGE, () => {
-        const selectedNode = graph.getSelectionCells()
+        const selectedCells = graph.getSelectionCells();
+        const selectedNode = selectedCells
             .find((cell) => cell?.value?.kind === 'node');
+        const selectedTitle = selectedCells
+            .find((cell) => cell?.value?.kind === 'node-title');
 
         if (selectedNode) {
             renderNodeDetails(selectedNode);
-            
+        } else if (selectedTitle) {
+            const linkedNode = state.nodeCells.get(selectedTitle.value.nodeId);
+
+            if (linkedNode) {
+                graph.setSelectionCell(linkedNode);
+            } else {
+                renderDetailsLegend();
+            }
         } else {
-            clearDetails();
+            renderDetailsLegend();
         }
     });
 }

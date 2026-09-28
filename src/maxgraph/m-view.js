@@ -15,8 +15,41 @@ import {
 import { getEdgeStyle, getNodeStyle } from './graph-styles.js';
 import { updateAffectedEdgeOrder } from './interactions.js';
 import { renderNodeTitleLabels } from './labels.js';
-import { alignSelection, applySavedEdgeLayout, fitGraph, runLayout } from './layout.js';
+import { alignSelection, applySavedEdgeLayout, fitGraph, restoreSavedLayout, runLayout } from './layout.js';
 import { state } from './state.js';
+import { renderDetailsLegend } from './details-panel.js';
+import { initNodeSearch, setNodeSearchDisabled } from './node-search.js';
+
+function setGraphActionsDisabled(disabled) {
+    const {
+        fitButton,
+        layoutButton,
+        alignLeftButton,
+        alignTopButton,
+        exportButton
+    } = getElements();
+
+    [fitButton, layoutButton, alignLeftButton, alignTopButton, exportButton]
+        .forEach((button) => {
+            button.disabled = disabled;
+        });
+    setNodeSearchDisabled(disabled);
+
+}
+function setGraphLoading(loading) {
+    const { modelSelect, loadButton, container } = getElements();
+
+    modelSelect.disabled = loading;
+    loadButton.disabled = loading;
+    loadButton.textContent = loading ? 'Loading...' : 'Load graph';
+    container.setAttribute('aria-busy', String(loading));
+
+    if (loading) {
+        setGraphActionsDisabled(true);
+    } else {
+        setGraphActionsDisabled(!state.graph);
+    }
+}
 
 function fillModelSelect(models) {
     const { modelSelect } = getElements();
@@ -36,15 +69,20 @@ function fillModelSelect(models) {
 }
 
 async function loadModels() {
-    const { modelSelect } = getElements();
+    const { modelSelect, loadButton } = getElements();
 
     modelSelect.innerHTML = '<option value="">Loading models...</option>';
+    modelSelect.disabled = true;
+    loadButton.disabled = true;
+    setSummary('Loading resource models...', 'loading');
 
     const data = await apiFetch('/api/ontology-usage/models');
 
     state.models = data.models || [];
     fillModelSelect(state.models);
-    setSummary(`Loaded ${state.models.length} resource models.`);
+    modelSelect.disabled = !state.models.length;
+    loadButton.disabled = !state.models.length;
+    setSummary(`Loaded ${state.models.length} resource models.`, 'success');
 }
 
 function renderMaxgraph(rawGraph, graphId) {
@@ -128,42 +166,50 @@ function renderMaxgraph(rawGraph, graphId) {
 }
 
 async function loadSelectedGraph() {
-    const { modelSelect, output } = getElements();
+    const { modelSelect } = getElements();
     const graphId = modelSelect.value;
 
     if (!graphId) {
-        setSummary('Choose a model first.');
+        setSummary('Choose a model first.', 'warning');
         return;
     }
 
-    output.textContent = '';
     setStatus('');
-    setSummary('Loading graph...');
-
-    const rawGraph = await apiFetch(`/api/ontology-usage/models/${graphId}`);
-    let savedLayout = null;
-    let storageError = null;
+    setSummary('Loading graph...', 'loading');
+    setGraphLoading(true);
+    let rawGraph;
+    let savedLayout;
+    let storageError;
 
     try {
-        savedLayout = await loadStoredLayout(graphId);
-        rawGraph.layout = savedLayout;
-    } catch (error) {
-        storageError = error;
-        console.warn('[MaxGraph] saved layout load failed', error);
+        rawGraph = await apiFetch(`/api/ontology-usage/models/${graphId}`);
+
+        try {
+            savedLayout = await loadStoredLayout(graphId);
+            rawGraph.layout = savedLayout;
+            state.savedLayout = savedLayout;
+        } catch (error) {
+            storageError = error;
+            console.warn('[MaxGraph] saved layout load failed', error);
+        }
+
+        renderMaxgraph(rawGraph, graphId);
+
+        setSummary(
+            `${rawGraph.model.name}: ${rawGraph.nodes.length} nodes, ${rawGraph.edges.length} edges.`,
+            'success'
+        );
+        setStatus(
+            storageError
+                ? `Loaded; local layout unavailable: ${storageError.message}`
+                : savedLayout
+                    ? 'Loaded saved layout'
+                    : 'Loaded with automatic layout',
+            storageError ? 'warning' : 'success'
+        );
+    } finally {
+        setGraphLoading(false);
     }
-
-    renderMaxgraph(rawGraph, graphId);
-
-    setSummary(
-        `${rawGraph.model.name}: ${rawGraph.nodes.length} nodes, ${rawGraph.edges.length} edges.`
-    );
-    setStatus(
-        storageError
-            ? `Loaded; local layout unavailable: ${storageError.message}`
-            : savedLayout
-                ? 'Loaded saved layout'
-                : 'Loaded with automatic layout'
-    );
 }
 
 export function initMaxgraphView() {
@@ -176,26 +222,37 @@ export function initMaxgraphView() {
         exportButton
     } = getElements();
 
+    renderDetailsLegend();
+    initNodeSearch();
+    setGraphActionsDisabled(true);
+
     loadButton.addEventListener('click', () => {
         loadSelectedGraph().catch((error) => {
-            setSummary(error.message);
+            setSummary(`Graph load failed: ${error.message}`, 'error');
+            setStatus('Graph was not loaded', 'error');
             console.error('[MaxGraph] graph load failed', error);
         });
     });
 
     fitButton.addEventListener('click', fitGraph);
-    layoutButton.addEventListener('click', runLayout);
+    layoutButton.addEventListener('click', restoreSavedLayout);
     alignLeftButton.addEventListener('click', () => alignSelection('left'));
     alignTopButton.addEventListener('click', () => alignSelection('top'));
-    exportButton.addEventListener('click', () => {
-        exportLayout().catch((error) => {
-            setStatus(`Layout save failed: ${error.message}`);
+    exportButton.addEventListener('click', async () => {
+        exportButton.disabled = true;
+
+        try {
+            await exportLayout();
+        } catch (error) {
+            setStatus(`Layout save failed: ${error.message}`, 'error');
             console.error('[MaxGraph] layout save failed', error);
-        });
+        } finally {
+            exportButton.disabled = !state.graph;
+        }
     });
 
     loadModels().catch((error) => {
-        setSummary(error.message);
+        setSummary(`Models could not be loaded: ${error.message}`, 'error');
         console.error('[MaxGraph] models load failed', error);
     });
 }

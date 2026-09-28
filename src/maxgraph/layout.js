@@ -46,6 +46,45 @@ export function runLayout() {
     setStatus('Layout applied');
 }
 
+export function restoreSavedLayout() {
+    const savedLayout = state.savedLayout || state.rawGraph?.layout;
+
+    if (!savedLayout?.nodes || !state.graph) {
+        runLayout();
+        return;
+    }
+
+    clearPortLabels();
+    clearNodeTitleLabels();
+    state.graph.batchUpdate(() => {
+        state.nodeCells.forEach((cell, nodeId) => {
+            const savedNode = savedLayout.nodes[nodeId];
+            const geometry = cell.getGeometry()?.clone();
+
+            if (!savedNode?.position || !geometry) {
+                return;
+            }
+
+            geometry.x = savedNode.position.x;
+            geometry.y = savedNode.position.y;
+            if (savedNode.size) {
+                geometry.width = savedNode.size.width;
+                geometry.height = savedNode.size.height;
+            }
+            state.graph.getDataModel().setGeometry(cell, geometry);
+        });
+
+        state.edgeCells.forEach((edgeCell, edgeId) => {
+            applySavedEdgeLayout(edgeCell, savedLayout.edges?.[edgeId]);
+        });
+    });
+
+    renderNodeTitleLabels();
+    ensureScrollableWorkspace();
+    fitGraph();
+    setStatus('Restored saved layout', 'success');
+}
+
 export function fitGraph() {
     if (!state.graph) {
         setStatus('Nothing to fit');
