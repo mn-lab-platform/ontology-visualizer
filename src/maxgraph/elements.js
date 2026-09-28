@@ -6,6 +6,8 @@ export function getElements() {
         layoutButton: document.getElementById('maxgraph-layout'),
         alignLeftButton: document.getElementById('maxgraph-align-left'),
         alignTopButton: document.getElementById('maxgraph-align-top'),
+        alignRightButton: document.getElementById('maxgraph-align-right'),
+        alignBottomButton: document.getElementById('maxgraph-align-bottom'),
         exportButton: document.getElementById('maxgraph-export'),
         searchToggle: document.getElementById('maxgraph-search-toggle'),
         search: document.getElementById('maxgraph-search'),

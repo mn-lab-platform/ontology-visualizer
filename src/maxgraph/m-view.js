@@ -26,10 +26,12 @@ function setGraphActionsDisabled(disabled) {
         layoutButton,
         alignLeftButton,
         alignTopButton,
+        alignRightButton,
+        alignBottomButton,
         exportButton
     } = getElements();
 
-    [fitButton, layoutButton, alignLeftButton, alignTopButton, exportButton]
+    [fitButton, layoutButton, alignLeftButton, alignTopButton, alignRightButton, alignBottomButton, exportButton]
         .forEach((button) => {
             button.disabled = disabled;
         });
@@ -219,6 +221,8 @@ export function initMaxgraphView() {
         layoutButton,
         alignLeftButton,
         alignTopButton,
+        alignRightButton,
+        alignBottomButton,
         exportButton
     } = getElements();
 
@@ -236,6 +240,8 @@ export function initMaxgraphView() {
 
     fitButton.addEventListener('click', fitGraph);
     layoutButton.addEventListener('click', restoreSavedLayout);
+    alignRightButton.addEventListener('click', () => alignSelection('right'));
+    alignBottomButton.addEventListener('click', () => alignSelection('bottom'));
     alignLeftButton.addEventListener('click', () => alignSelection('left'));
     alignTopButton.addEventListener('click', () => alignSelection('top'));
     exportButton.addEventListener('click', async () => {
